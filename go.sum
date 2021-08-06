@@ -1,0 +1,4 @@
+github.com/brunsgaard/go-pdfium-render v0.0.0-20190126055834-b01df5200e99 h1:KoiDHCuhDxx1A9S/8d5vDWrq8NC4Xn1beUE3Z5RMkxA=
+github.com/brunsgaard/go-pdfium-render v0.0.0-20190126055834-b01df5200e99/go.mod h1:Dc+Yw8vVCccW1wj8/emIVeg8AQzabSojKj9cwxI6Y+4=
+github.com/rwestlund/gotex v0.0.0-20170412080108-3c68d9bfff3b h1:8h8zM6cvKacR9ytPSs1k0BGfUsXeOdEu+by82F1ooHY=
+github.com/rwestlund/gotex v0.0.0-20170412080108-3c68d9bfff3b/go.mod h1:eMwKfukmxmiMHwKmz8LHWprZSVlzcHBGy2TSb+pBcDg=
