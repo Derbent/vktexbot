@@ -7,6 +7,7 @@ import (
 	"github.com/SevereCloud/vksdk/v2/api/params"
 	"github.com/SevereCloud/vksdk/v2/events"
 	longpoll "github.com/SevereCloud/vksdk/v2/longpoll-bot"
+	"github.com/pkg/errors"
 )
 
 type vkTransport struct {
@@ -14,18 +15,18 @@ type vkTransport struct {
 	lp *longpoll.LongPoll
 }
 
-func NewVK(token string, groupID int) Transport {
+func NewVK(token string, groupID int) (Transport, error) {
 	vk := api.NewVK(token)
 	lp, err := longpoll.NewLongPoll(vk, groupID)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	return &vkTransport{
 		vk: vk,
 		lp: lp,
-	}
+	}, nil
 }
 
 func (vt *vkTransport) MessageNew(f func(*Client)) {
@@ -33,18 +34,19 @@ func (vt *vkTransport) MessageNew(f func(*Client)) {
 		f(&Client{
 			id: obj.Message.PeerID,
 			message: Message{
-				text: &obj.Message.Text,
+				text: obj.Message.Text,
 			},
 		})
 	})
 }
 
-func (vt *vkTransport) MessageSend(client *Client) {
+func (vt *vkTransport) MessageSend(client *Client) error {
 	b := params.NewMessagesSendBuilder()
-	b.Message(*client.message.text)
+	b.Message(client.message.text)
 	b.RandomID(0)
 	b.PeerID(client.id)
-	vt.vk.MessagesSend(b.Params)
+	_, err := vt.vk.MessagesSend(b.Params)
+	return errors.Wrap(err, "MessageSend error")
 }
 
 func (vt *vkTransport) Run() {

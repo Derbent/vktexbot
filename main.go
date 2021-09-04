@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"strconv"
 
@@ -9,26 +9,35 @@ import (
 )
 
 func RunVKServer() {
+	log.Print("Start VK server")
+
 	token, exists := os.LookupEnv("VK_TOKEN")
 	if exists == false {
-		panic("VK_TOKEN env variable does not exist!")
+		log.Print("VK_TOKEN env variable does not exist!")
+		return
 	}
 
 	groupID, exists := os.LookupEnv("VK_GROUP_ID")
 	if exists == false {
-		panic("VK_GROUP_ID env variable does not exist!")
+		log.Print("VK_GROUP_ID env variable does not exist!")
+		return
 	}
 
 	intGroupID, err := strconv.Atoi(groupID)
 	if err != nil {
-		panic("Bad VK_GROUP_ID")
+		log.Print("Bad VK_GROUP_ID")
+		return
 	}
 
-	vk := transport.NewVK(token, intGroupID)
+	vk, err := transport.NewVK(token, intGroupID)
+	if err != nil {
+		log.Print(err)
+		return
+	}
 	transport.Run(vk)
+	log.Print("VK server stopped")
 }
 
 func main() {
 	RunVKServer()
-	fmt.Print("RUN")
 }
