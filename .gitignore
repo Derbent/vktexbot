@@ -1,3 +1,5 @@
 *.png
 *.pdf
 render/test_files
+render/cover.out
+set_enviroment.sh
