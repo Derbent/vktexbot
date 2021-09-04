@@ -1,41 +1,34 @@
 package main
 
 import (
-	"context"
-	"image/png"
-	"log"
+	"fmt"
 	"os"
+	"strconv"
 
-	render "github.com/ZashX/vktexbot/render"
+	"github.com/ZashX/vktexbot/transport"
 )
 
-func main() {
-	ctx := context.Background()
-	if err := Run(ctx); err != nil {
-		log.Fatalf("unexpected result: %v", err)
+func RunVKServer() {
+	token, exists := os.LookupEnv("VK_TOKEN")
+	if exists == false {
+		panic("VK_TOKEN env variable does not exist!")
 	}
 
-	return
+	groupID, exists := os.LookupEnv("VK_GROUP_ID")
+	if exists == false {
+		panic("VK_GROUP_ID env variable does not exist!")
+	}
+
+	intGroupID, err := strconv.Atoi(groupID)
+	if err != nil {
+		panic("Bad VK_GROUP_ID")
+	}
+
+	vk := transport.NewVK(token, intGroupID)
+	transport.Run(vk)
 }
 
-func Run(ctx context.Context) error {
-	r := render.New()
-
-	text := `\documentclass[preview,border=3pt,3pt]{standalone}
-	\begin{document}
-	This is a LaTeX document.
-	\end{document}`
-
-	img, err := r.Rend(text)
-	if err != nil {
-		panic(err)
-	}
-
-	f, err := os.OpenFile("out.png", os.O_WRONLY|os.O_CREATE, 0755)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-	png.Encode(f, img)
-	return nil
+func main() {
+	RunVKServer()
+	fmt.Print("RUN")
 }
