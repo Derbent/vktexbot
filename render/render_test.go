@@ -9,11 +9,7 @@ import (
 func TestPDFRender(t *testing.T) {
 	r := New()
 
-	text :=
-		`\documentclass[preview,border=3pt,3pt]{standalone}
-		\begin{document}
-		This is a LaTeX document.
-		\end{document}`
+	text := `This is hahah a LaTeX document.`
 
 	img, err := r.Rend(text)
 	if err != nil {

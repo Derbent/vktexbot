@@ -2,6 +2,8 @@ package transport
 
 import (
 	"context"
+	"image/jpeg"
+	"io"
 
 	"github.com/SevereCloud/vksdk/v2/api"
 	"github.com/SevereCloud/vksdk/v2/api/params"
@@ -45,6 +47,42 @@ func (vt *vkTransport) MessageSend(client *Client) error {
 	b.Message(client.message.text)
 	b.RandomID(0)
 	b.PeerID(client.id)
+
+	if client.message.image != nil {
+		pr, pw := io.Pipe()
+		o := jpeg.Options{Quality: 90}
+
+		errEncodeChan := make(chan error, 1)
+		go func() {
+			if err := jpeg.Encode(pw, client.message.image, &o); err != nil {
+				if pipeErr := pw.Close(); pipeErr != nil {
+					errEncodeChan <- pipeErr
+				} else {
+					errEncodeChan <- err
+				}
+			} else if pipeErr := pw.Close(); pipeErr != nil {
+				errEncodeChan <- pipeErr
+			}
+			close(errEncodeChan)
+		}()
+
+		resp, err := vt.vk.UploadMessagesPhoto(client.id, pr)
+
+		if errEncode := <-errEncodeChan; errEncode != nil {
+			return errors.Wrap(errEncode, "Jpeg encode error")
+		}
+
+		if err != nil {
+			return errors.Wrap(err, "UploadMessagesPhoto error")
+		}
+
+		if err := pw.Close(); err != nil {
+			return errors.Wrap(err, "Pipe close error")
+		}
+
+		b.Attachment(resp[0].ToAttachment())
+	}
+
 	_, err := vt.vk.MessagesSend(b.Params)
 	return errors.Wrap(err, "MessageSend error")
 }

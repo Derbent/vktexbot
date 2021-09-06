@@ -13,26 +13,22 @@ func RunVKServer() {
 
 	token, exists := os.LookupEnv("VK_TOKEN")
 	if exists == false {
-		log.Print("VK_TOKEN env variable does not exist!")
-		return
+		panic("VK_TOKEN env variable does not exist!")
 	}
 
 	groupID, exists := os.LookupEnv("VK_GROUP_ID")
 	if exists == false {
-		log.Print("VK_GROUP_ID env variable does not exist!")
-		return
+		panic("VK_GROUP_ID env variable does not exist!")
 	}
 
 	intGroupID, err := strconv.Atoi(groupID)
 	if err != nil {
-		log.Print("Bad VK_GROUP_ID")
-		return
+		panic("Bad VK_GROUP_ID")
 	}
 
 	vk, err := transport.NewVK(token, intGroupID)
 	if err != nil {
-		log.Print(err)
-		return
+		panic(err)
 	}
 	transport.Run(vk)
 	log.Print("VK server stopped")
